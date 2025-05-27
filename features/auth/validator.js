@@ -16,3 +16,7 @@ export const createSchema = z.object({
     .max(20, "password should be less than 20 character"),
   role: z.nativeEnum(["admin", "user"]),
 });
+export const loginSchema = createSchema.pick({
+  email: true,
+  password: true,
+});

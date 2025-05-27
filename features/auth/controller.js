@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { prisma } from "../../index.js";
-import { createSchema } from "./validator.js";
+import { createSchema, loginSchema } from "./validator.js";
 
 export const registerController = async (req, res) => {
   try {
@@ -49,4 +50,41 @@ export const registerController = async (req, res) => {
   }
 };
 
-export const loginController = () => {};
+export const loginController = async (req, res) => {
+  try {
+    const loginResult = loginSchema.safeParse(req.body);
+    if (!loginResult.success) {
+      return res.status(400).send({
+        message: "Invalid Data",
+        error: loginResult.error,
+        status: 400,
+      });
+    }
+    const { email, password } = loginResult.data;
+    const user = await prisma.user.findFirst({
+      where: {
+        email,
+      },
+    });
+    if (!user) {
+      return res.status(404).send({
+        message: "Email not found",
+        status: 404,
+      });
+    }
+    const isPassword = await bcrypt.compare(password, user.password);
+    if (!isPassword) {
+      return res.status(400).send({
+        message: "Invalid credential ",
+        status: 400,
+      });
+    }
+    const token = jwt.sign({ userId: user.id }, "sam");
+    prisma.token.create({
+      data: {
+        token,
+        userId: user.id,
+      },
+    });
+  } catch (err) {}
+};
