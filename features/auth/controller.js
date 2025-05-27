@@ -13,13 +13,24 @@ export const registerController = async (req, res) => {
     }
 
     const { name, email, password, address, role } = result.data;
-    const hashedPassword = bcrypt.hash(password, 10);
-    await prisma.user.create({
+    const prevEmail = prisma.user.findFirst({
+      where: {
+        email,
+      },
+    });
+    if (prevEmail) {
+      return res.status(400).send({
+        message: "Email already exist",
+        status: 400,
+      });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const createdUser = await prisma.user.create({
       data: {
         name,
         address,
         email,
-        hashedPassword,
+        password: hashedPassword,
         role,
       },
     });
@@ -29,6 +40,7 @@ export const registerController = async (req, res) => {
       status: 201,
     });
   } catch (err) {
+    console.log(err);
     return res.status(500).send({
       message: "Internal server error",
       status: 500,
@@ -36,3 +48,5 @@ export const registerController = async (req, res) => {
     });
   }
 };
+
+export const loginController = () => {};
