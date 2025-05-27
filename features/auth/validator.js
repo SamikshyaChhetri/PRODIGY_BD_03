@@ -12,7 +12,7 @@ export const createSchema = z.object({
     .max(20, "Address must not exceed 20 character"),
   password: z
     .string()
-    .min(8, "Message must be atleast 10yrs")
-    .max(20, "Message should be less than 100yrs"),
+    .min(8, "password must be of atleast 8 character ")
+    .max(20, "password should be less than 20 character"),
   role: z.nativeEnum(["admin", "user"]),
 });
