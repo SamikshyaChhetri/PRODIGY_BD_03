@@ -14,7 +14,7 @@ export const registerController = async (req, res) => {
     }
 
     const { name, email, password, address, role } = result.data;
-    const prevEmail = prisma.user.findFirst({
+    const prevEmail = await prisma.user.findFirst({
       where: {
         email,
       },
