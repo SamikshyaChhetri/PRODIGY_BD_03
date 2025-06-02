@@ -41,7 +41,6 @@ export const registerController = async (req, res) => {
       status: 201,
     });
   } catch (err) {
-    console.log(err);
     return res.status(500).send({
       message: "Internal server error",
       status: 500,
@@ -80,11 +79,24 @@ export const loginController = async (req, res) => {
       });
     }
     const token = jwt.sign({ userId: user.id }, "sam");
-    prisma.token.create({
+    await prisma.token.create({
       data: {
         token,
         userId: user.id,
       },
     });
-  } catch (err) {}
+    res.cookie("token", token);
+    return res.status(200).send({
+      message: "Login successful",
+      status: 200,
+      data: token,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({
+      message: "Internal server error",
+      status: 500,
+      error: err,
+    });
+  }
 };
