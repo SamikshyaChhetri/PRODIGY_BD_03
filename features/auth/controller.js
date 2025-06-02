@@ -79,6 +79,18 @@ export const loginController = async (req, res) => {
       });
     }
     const token = jwt.sign({ userId: user.id }, "sam");
+    const prevToken = await prisma.token.findFirst({
+      where: {
+        userId: user.id,
+      },
+    });
+    if (prevToken) {
+      await prisma.token.delete({
+        where: {
+          id: prevToken.id,
+        },
+      });
+    }
     await prisma.token.create({
       data: {
         token,
